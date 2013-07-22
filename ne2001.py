@@ -89,7 +89,7 @@ def density_2001(x,y,z):
 	ne2001_path = os.environ['NE2001_PATH']
     except KeyError:
 	ne2001_path = '/afs/desy.de/user/m/meyerm/projects/NE2001/bin.NE2001/'
-	logging.warning("Did not find environmental variable for NE2001_PATH, using {0} instead.".format(ne2001_path)
+	logging.warning("Did not find environmental variable for NE2001_PATH, using {0} instead.".format(ne2001_path))
 
     for i,xN in enumerate(x_NE2001):
 	if np.sqrt(xN**2. + y_NE2001[i]**2.) > 15.:
@@ -203,7 +203,7 @@ def density_2001_los(s,l,b, saveoutput,d = -8.5):
 	ne2001_path = os.environ['NE2001_PATH']
     except KeyError:
 	ne2001_path = '/afs/desy.de/user/m/meyerm/projects/NE2001/bin.NE2001/'
-	logging.warning("Did not find environmental variable for NE2001_PATH, using {0} instead.".format(ne2001_path)
+	logging.warning("Did not find environmental variable for NE2001_PATH, using {0} instead.".format(ne2001_path))
 
     m = np.sqrt(x_NE2001**2. + y_NE2001**2.) < 15.	# mask, if x^2 + y^2 > 15 model is zero anyways
     for i,xN in enumerate(x_NE2001[m]):
