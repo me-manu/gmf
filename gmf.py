@@ -1,11 +1,14 @@
 """
 Class for calculating the galactic magnetic field according to Jansson & Farrar (2012)
-see  http://adsabs.harvard.edu/abs/2012arXiv1204.3662J
+and Pshirkov et al. 2011,
+see http://adsabs.harvard.edu/abs/2012ApJ...757...14J
+and http://adsabs.harvard.edu/abs/2011ApJ...738..192P
 
 History:
 - 05/07/2012 created
+- 05/11/2012 started to add Pshirkov model
 """
-__version__ = '0.1'
+__version__ = '0.1.1'
 __author__ ="M. Meyer // manuel.meyer@physik.uni-hamburg.de"
 
 import numpy as np
@@ -24,6 +27,8 @@ class GMF(object):
 
     Attributes
     ----------
+    Rsun: assumed position of the sun along the x axis in kpc
+
     Disk:
 	bring, bring_unc	: floats, field strength in ring at 3 kpc < rho < 5 kpc
 	hdisk, hdisk_unc	: float, disk/halo transition height
@@ -50,7 +55,7 @@ class GMF(object):
     Notes
     -----
     Paper:
-    http://adsabs.harvard.edu/abs/2012arXiv1204.3662J
+    see http://adsabs.harvard.edu/abs/2012ApJ...757...14J
     Jansson & Farrar (2012)
     """
 
@@ -68,6 +73,7 @@ class GMF(object):
 	Nothing
 
 	"""
+	self.Rsun	= -8.5				# position of the sun in kpc
 	# Best fit values, see Table 1 of Jansson & Farrar --------#
 	# Disk
 	self.bring, self.bring_unc	= 0.1,0.1	# ring at 3 kpc < rho < 5 kpc
@@ -269,3 +275,175 @@ class GMF(object):
 	BX[2,m] = b * (np.sin(theta) * (z[m] >= 0) + np.sin(pi*np.ones(theta.shape[0]) - theta) * (z[m] < 0))
 
 	return BX, np.sqrt(np.sum(BX**2.,axis=0))
+
+class GMF_Pshirkov(object):
+    """
+    Class with analytical functions that describe the 
+    galactic magnetic field according to the model of Pshirkov et al. (2011)
+
+    Only the regular field components are implemented. 
+
+    Attributes
+    ----------
+    Rsun	= scalar, position of the sun in kpc along x axis
+    Disk:
+	p	= pitch angle, dictionary with entries 'ASS' and 'BSS', in radian
+	z0	= scalar, height of disk in kpc
+	d	= scalar, value if field reversal in kpc
+	B0	= scalar, Value of B field at position of the sun, in muG
+    Halo - North:
+	z0n	= scalar, position of northern halo in kpc
+	Bn	= scalar, northern halo in muG
+	r0n	= scalar, northern halo
+	z1n	= scalar, scale height of halo toward galactic plane, |z| < z0n
+	z2n	= scalar, scale height of halo away from galactic plane, |z| >= z0n
+    Halo - North:
+	z0s	= scalar, position of northern halo in kpc
+	Bs	= pitch angle, dictionary with entries 'ASS' and 'BSS', in radian
+	r0s	= scalar, northern halo
+	z1s	= scalar, scale height of halo toward galactic plane, |z| < z0n
+	z2s	= scalar, scale height of halo away from galactic plane, |z| >= z0n
+
+    Notes
+    -----
+    Paper:
+    http://adsabs.harvard.edu/abs/2011ApJ...738..192P
+    Pshirkov et al. (2011)
+    """
+
+    def __init__(self, mode = 'ASS'):
+	"""
+	Init the GMF class,
+	all B-field values are in muG
+
+	Parameters
+	----------
+	mode:	string, either ASS or BSS for axissymmetric or bisymmetric model, respectively.
+
+	Returns
+	-------
+	Nothing
+
+	"""
+	if not (mode == 'ASS' or mode == 'BSS'):
+	    warnings.warn('mode must be either ASS or BSS not {0}.\nReturning -1'.format(mode),RuntimeWarning)
+	    return -1
+
+	self.m = mode
+
+	# Best fit values, see Table 3 of Pshirkov et al. 2011 --------#
+	self.Rsun	= 8.5				# position of the sun in kpc
+	# Disk
+	self.p	= {}
+	self.p['ASS']	= -5. * pi / 180.		# pitch angle in radian
+	self.p['BSS']	= -6. * pi / 180.		# pitch angle in radian
+	self.z0		= 1.				# height of disk in kpc
+	self.d		= -0.6				# value if field reversal in kpc
+	self.B0		= 2.				# Value of B field at position of the sun, in muG
+	self.Rc		= 5.				# Scale radius of disk component in kpc
+	# Halo - North
+	self.z0n	= 1.3				# position of northern halo in kpc
+	self.Bn		= 4.				# northern halo in muG
+	self.Rn		= 8.				# northern halo
+	self.z1n	= 0.25				# scale height of halo toward galactic plane, |z| < z0n
+	self.z2n	= 0.40				# scale height of halo away from galactic plane, |z| >= z0n
+	# Halo - South
+	self.z0s	= 1.3				# position of northern halo in kpc
+	self.Bs		= {}				# northern halo in muG
+	self.Bs['ASS']	= 2.				# northern halo in muG
+	self.Bs['BSS']	= 4.				# northern halo in muG
+	self.Rs		= 8.				# northern halo
+	self.z1s	= 0.25				# scale height of halo toward galactic plane, |z| < z0n
+	self.z2s	= 0.40				# scale height of halo away from galactic plane, |z| >= z0n
+	return
+
+
+    def Bdisk(self,rho,phi,z):
+	"""
+	Disk component of galactic magnetic field 
+	in galactocentric cylindrical coordinates (rho,phi,z)
+
+	Parameters
+	----------
+	rho:	N-dim np.array,	distance from origin in GC cylindrical coordinates, is in kpc
+	z:	N-dim np.array, height in kpc in GC cylindrical coordinates
+	phi:	N-dim np.array, polar angle in GC cylindircal coordinates, in radian
+
+	Returns
+	-------
+	Bdisk:	(3,N)-dim np.array with (rho,phi,z) components of disk field for each coordinate tuple
+	|Bdisk|: N-dim np.array, absolute value of Bdisk for each coordinate tuple
+
+	Notes
+	-----
+	See Pshirkov et al. Eq. (3) - (5)
+	"""
+	if (not rho.shape[0] == phi.shape[0]) and (not z.shape[0] == phi.shape[0]):
+	    warnings.warn("List do not have equal shape! returning -1", RuntimeWarning)
+	    return -1
+
+	Bdisk = np.zeros((3,rho.shape[0]))	# Bdisk vector in rho, phi, z
+						# rows: rho, phi and z component
+
+	m_Rc		= rho >= self.Rc
+
+	b		= 1. / np.tan(self.p[self.m])
+	phi_disk	= b * np.log(1. + self.d/self.Rsun) - pi / 2.
+
+	B		= np.cos(phi - b * np.log(rho / self.Rsun) + phi_disk)
+	if self.m == 'ASS':
+	    B = np.abs(B)
+
+	B		*= np.exp(-np.abs(z) / self.z0)
+	B[m_Rc]		*= self.B0 * self.Rsun / (rho[m_Rc] * np.cos(phi_disk))
+	B[~m_Rc]	*= self.B0 * self.Rsun / (self.Rc * np.cos(phi_disk))
+
+	Bdisk[0,:] = B * np.sin(self.p[self.m])
+	Bdisk[1,:] = B * np.cos(self.p[self.m]) * (-1.) 	# minus one multiplied here so that magnetic field 
+								# is orientated clock wise at earth's position
+
+	return Bdisk, np.sqrt(np.sum(Bdisk**2.,axis = 0))
+
+    def Bhalo(self,rho,z):
+	"""
+	Halo component of galactic magnetic field 
+	in galactocentric cylindrical coordinates (rho,phi,z)
+
+	Bhalo is purely azimuthal (toroidal), i.e. has only a phi component
+
+	Parameters
+	----------
+	rho:	N-dim np.array,	distance from origin in GC cylindrical coordinates, is in kpc
+	z:	N-dim np.array, height in kpc in GC cylindrical coordinates
+
+	Returns
+	-------
+	Bhalo:	(3,N)-dim np.array with (rho,phi,z) components of halo field for each coordinate tuple
+	|Bhalo|: N-dim np.array, absolute value of Bdisk for each coordinate tuple
+	"""
+
+	if (not rho.shape[0] == z.shape[0]):
+	    warnings.warn("List do not have equal shape! returning -1", RuntimeWarning)
+	    return -1
+
+	Bhalo = np.zeros((3,rho.shape[0]))	# Bhalo vector in rho, phi, z
+						# rows: rho, phi and z component
+
+	m_zn2	= (z > 0) & (z > self.z0n)	# north and above halo
+	m_zn1	= (z > 0) & (z <= self.z0n)	# north and below halo
+
+	m_zs2	= (z < 0) & (z < self.z0n)	# south and below halo
+	m_zs1	= (z < 0) & (z >= self.z0n)	# south and above halo, i.e., between halo and disk
+
+
+	Bhalo[1,m_zn2]	= self.Bn / (1. + ((np.abs(z[m_zn2]) - self.z0n) / self.z2n) ** 2.) * rho[m_zn2] / self.Rn \
+			* np.exp(1. - rho[m_zn2] / self.Rn) 
+	Bhalo[1,m_zn1]	= self.Bn / (1. + ((np.abs(z[m_zn1]) - self.z0n) / self.z1n) ** 2.) * rho[m_zn1] / self.Rn \
+			* np.exp(1. - rho[m_zn1] / self.Rn) 
+
+	Bhalo[1,m_zs2]	= -1. * self.Bs[self.m] / (1. + ((np.abs(z[m_zs2]) - self.z0s) / self.z2s) ** 2.) * rho[m_zs2] / self.Rs \
+			* np.exp(1. - rho[m_zs2] / self.Rs) 
+	Bhalo[1,m_zs1]	= -1. * self.Bs[self.m] / (1. + ((np.abs(z[m_zs1]) - self.z0s) / self.z1s) ** 2.) * rho[m_zs1] / self.Rs \
+			* np.exp(1. - rho[m_zs1] / self.Rs) 	# the minus sign gives the right rotation direction
+
+	return Bhalo, np.sqrt(np.sum(Bhalo**2.,axis = 0))
