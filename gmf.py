@@ -38,7 +38,7 @@ class GMF(object):
 	rhos, rhos_unc		: floats, transition radius south, lower limit
 	whalo, whalo_unc	: floats, transition width
 	z0, z0_unc		: floats, vertical scale height
-    Out of plaxe or "X" component:
+    Out of plane or "X" component:
 	BX0, BX_unc		: floats, field strength at origin
 	ThetaX0, ThetaX0_unc	: floats, elev. angle at z = 0, rho > rhoXc
 	rhoXc, rhoXc_unc	: floats, radius where thetaX = thetaX0
