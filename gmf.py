@@ -385,6 +385,7 @@ class GMF_Pshirkov(object):
 	Bdisk = np.zeros((3,rho.shape[0]))	# Bdisk vector in rho, phi, z
 						# rows: rho, phi and z component
 
+	phi += np.pi				# in order to have same coordinates as Jansson model, i.e. Sun is at x = -8.5 kpc
 	m_Rc		= rho >= self.Rc
 
 	b		= 1. / np.tan(self.p[self.m])

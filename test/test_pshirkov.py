@@ -21,7 +21,7 @@ class Test_Pshirkov(object):
 
 	x = np.linspace(-20.,20.,500)
 	y = np.linspace(-20.,20.,x.shape[0])
-	z = np.ones(x.shape[0]) * 1.1
+	z = np.ones(x.shape[0]) * 0.0001
 
 	xx,yy = np.meshgrid(x,y)
 
