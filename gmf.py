@@ -263,7 +263,7 @@ class GMF(object):
 
 	rho_p0	= (rho[m])[m_rho_b]  - np.abs( (z[m])[m_rho_b] ) / np.tan(self.ThetaX0)
 	b[m_rho_b]	= bx(rho_p0) * rho_p0/ (rho[m])[m_rho_b]
-	theta[m_rho_b]	= self.ThetaX0 * np.ones(m_rho_b.shape[0])
+	theta[m_rho_b]	= self.ThetaX0 * np.ones(np.sum(m_rho_b))
 
 	b[m_rho_l]	= bx(rho_p[m_rho_l]) * (rho_p[m_rho_l]/(rho[m])[m_rho_l] )**2.
 	theta[m_rho_l]	= tx((rho[m])[m_rho_l] ,(z[m])[m_rho_l] ,rho_p[m_rho_l])
