@@ -1,11 +1,11 @@
 	#################################
-	#	gmf                     #
+	#       gmf                     #
 	#################################
 	# python package to compute     #
 	# the galactic magnetic field   #
-	#				#
+	#                               #
 	# Author:                       #
-	# -------			#
+	# -------                       #
 	# Manuel Meyer                  #
 	# manuel.meyer@fysik.su.se      #
 	#################################
@@ -20,7 +20,7 @@ If you use any of the packages, please give a reference to the
 following papers:
 
 - Jansson & Farrar, 2012, The Astrophysical Journal, Volume 757, Issue 1, article id. 14, 13 pp.
-- Pshirkov et al., 2011, The Astrophysical Journal, Volume 757, Issue 1, article id. 14, 13 pp.
+- Pshirkov et al., 2011, The Astrophysical Journal, Volume 738, Issue 2, article id. 192, 14 pp.
 - Horns et al., 2012, Physical Review D, vol. 86, Issue 7
 - Meyer et al., 2013, Physical Review D, vol. 87, Issue 3, id. 035027
 
@@ -36,20 +36,18 @@ e.g.,
 export NE2001_PATH="/path/to/ne2001/implementation/NE2001/bin.NE2001/"
 
 You will also need the following standard python packages:
-numpy
-scipy
-matplotlib
+- numpy
+- scipy
 
 
 3. Package contents:
 --------------------
-README.md		-	the file you are currently reading
-__init__.py		-	init the python packages
-gmf.py			-	functions to calculate the B-field components
-trafo.py		-	functions to compute the transformation from galactocentric cylindrical 
-				coordinates to heliocentric spherical (l,b) coordinates
-ne2001.py		-	functions to compute electron density from fortran library
-example.py		- 	example file to calculate the conversion (not yet added)
+- README.md: the file you are currently reading
+- __init__.py: init the python packages
+- gmf.py	: functions to calculate the B-field components
+- trafo.py: functions to compute the transformation from galactocentric cylindrical 
+- coordinates to heliocentric spherical (l,b) coordinates
+- ne2001.py: functions to compute electron density from fortran library
 
 4. License
 ----------
