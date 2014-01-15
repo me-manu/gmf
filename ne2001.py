@@ -208,7 +208,7 @@ def density_2001_los(s,l,b, saveoutput,d = -8.5):
     m = np.sqrt(x_NE2001**2. + y_NE2001**2.) < 15.	# mask, if x^2 + y^2 > 15 model is zero anyways
     for i,xN in enumerate(x_NE2001[m]):
 	try:
-	    p = Popen([ ne2001_path + 'NE2001_dens','{0}'.format(xN),'{0}'.format(y_NE2001[i]),'{0}'.format(z_NE2001[i])], stdout = PIPE)
+	    p = Popen([ os.path.join(ne2001_path , 'NE2001_dens'),'{0}'.format(xN),'{0}'.format(y_NE2001[i]),'{0}'.format(z_NE2001[i])], stdout = PIPE)
 	except OSError:
 	    warnings.warn('Could not run NE2001_dens, is it compiled correctly?',RuntimeWarning)
 	    return -1
