@@ -16,12 +16,14 @@ z = np.linspace(0.,19.4,dz)
 ne = np.zeros((dx,dy,2. * dz), dtype = np.float32)
 
 for i in range(dx):
+    print i
     for j in range(dy):
 	for k in range(dz):
 	    n = density_2001(x[i],y[j],z[k])
 	    ne[i,j,k + dz - 1] =  n
 	    if k:
 		ne[i,j,dz - 1 - k] =  n
+
 
 f = open(sys.argv[-1],'w')
 pickle.dump(ne,f)
