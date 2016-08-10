@@ -10,7 +10,7 @@ class Test_GMF(object):
 
     def test_disk(self,model = 'jansson',mode = 'ASS'):
 	"""
-	test the b field model by pshirkov
+	test the b field model by pshirkov or jansson and farrar (default)
 	"""
 
 
